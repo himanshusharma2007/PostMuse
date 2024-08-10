@@ -3,8 +3,8 @@ import { motion } from "framer-motion";
 import Select from "react-select";
 import { FaPaperPlane, FaSmile, FaHashtag, FaQuoteLeft } from "react-icons/fa";
 import { MdTune } from "react-icons/md";
-import { generatePrompt, generatePost } from "../Services/geminiService";
 import Header from "../components/Header";
+import { useNavigate } from "react-router-dom";
 
 const SetParametersPage = () => {
   const [formData, setFormData] = useState({
@@ -18,9 +18,7 @@ const SetParametersPage = () => {
     targetAudience: "",
     keywords: "",
   });
-
-const [generatedPrompt, setGeneratedPrompt] = useState("");
-const [generatedPost, setGeneratedPost] = useState("");
+const navigate=useNavigate()
 const [isLoading, setIsLoading] = useState(false);
 const [error, setError] = useState(null);
 
@@ -30,25 +28,25 @@ const handleInputChange = (name, value) => {
     [name]: value,
   }));
 };
- const handleSubmit = async (e) => {
-   e.preventDefault();
-   setIsLoading(true);
-   setError(null);
+const handleSubmit = (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
 
-   try {
-     // Generate prompt
-     const prompt = await generatePrompt(formData);
-     setGeneratedPrompt(prompt);
+  try {
+    // Store the form data in localStorage
+    localStorage.setItem("postParameters", JSON.stringify(formData));
 
-     // Generate post using the prompt
-     const post = await generatePost(prompt);
-     setGeneratedPost(post);
-   } catch (err) {
-     setError("Failed to generate post. Please try again.");
-   } finally {
-     setIsLoading(false);
-   }
- };
+    // Navigate to the generated post page
+    navigate("/generated-post");
+  } catch (err) {
+    // This catch block will only run if there's an error with localStorage
+    console.error("Error storing data:", err);
+    setError("Failed to store post parameters. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const toneOptions = [
     { value: "casual", label: "Casual" },
@@ -279,29 +277,7 @@ const handleInputChange = (name, value) => {
         </form>
         {error && <div className="mt-4 text-red-500 text-center">{error}</div>}
 
-        {generatedPrompt && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-8 p-4 bg-gray-800 rounded-md shadow-md"
-          >
-            <h3 className="text-xl font-semibold mb-2">Generated Prompt:</h3>
-            <p className="whitespace-pre-wrap">{generatedPrompt}</p>
-          </motion.div>
-        )}
-
-        {generatedPost && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-8 p-4 bg-gray-800 rounded-md shadow-md"
-          >
-            <h3 className="text-xl font-semibold mb-2">Generated Post:</h3>
-            <p className="whitespace-pre-wrap">{generatedPost}</p>
-          </motion.div>
-        )}
+     
       </motion.div>
     </div>
   );
