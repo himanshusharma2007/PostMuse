@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import Select from "react-select";
 import { FaPaperPlane, FaSmile, FaHashtag, FaQuoteLeft } from "react-icons/fa";
 import { MdTune } from "react-icons/md";
+import { generatePrompt, generatePost } from "../Services/geminiService";
 import Header from "../components/Header";
 
 const SetParametersPage = () => {
@@ -18,18 +19,36 @@ const SetParametersPage = () => {
     keywords: "",
   });
 
-  const handleInputChange = (name, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
+const [generatedPrompt, setGeneratedPrompt] = useState("");
+const [generatedPost, setGeneratedPost] = useState("");
+const [isLoading, setIsLoading] = useState(false);
+const [error, setError] = useState(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    // Here you would typically send the data to your API or next step
-  };
+const handleInputChange = (name, value) => {
+  setFormData((prevData) => ({
+    ...prevData,
+    [name]: value,
+  }));
+};
+ const handleSubmit = async (e) => {
+   e.preventDefault();
+   setIsLoading(true);
+   setError(null);
+
+   try {
+     // Generate prompt
+     const prompt = await generatePrompt(formData);
+     setGeneratedPrompt(prompt);
+
+     // Generate post using the prompt
+     const post = await generatePost(prompt);
+     setGeneratedPost(post);
+   } catch (err) {
+     setError("Failed to generate post. Please try again.");
+   } finally {
+     setIsLoading(false);
+   }
+ };
 
   const toneOptions = [
     { value: "casual", label: "Casual" },
@@ -87,8 +106,8 @@ const SetParametersPage = () => {
     }),
     menuPortal: (provided) => ({
       ...provided,
-      zIndex: 30, 
-      color:"white",
+      zIndex: 30,
+      color: "white",
     }),
     option: (provided, state) => ({
       ...provided,
@@ -102,6 +121,7 @@ const SetParametersPage = () => {
       color: "#E5E7EB",
     }),
   };
+
 
   return (
     <div className="min-h-screen  pb-6 bg-gray-900 text-white ">
@@ -128,7 +148,7 @@ const SetParametersPage = () => {
               <textarea
                 value={formData.message}
                 onChange={(e) => handleInputChange("message", e.target.value)}
-                className="w-full px-3 py-2 text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-3 py-2 resize-none text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 rows="3"
                 placeholder="Enter your main idea or topic here..."
               />
@@ -244,12 +264,44 @@ const SetParametersPage = () => {
             <button
               type="submit"
               className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-md shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition duration-300 ease-in-out"
+              disabled={isLoading}
             >
-              <FaPaperPlane className="inline-block mr-2 mb-1" />
-              Generate Post
+              {isLoading ? (
+                "Generating..."
+              ) : (
+                <>
+                  <FaPaperPlane className="inline-block mr-2 mb-1" />
+                  Generate Post
+                </>
+              )}
             </button>
           </motion.div>
         </form>
+        {error && <div className="mt-4 text-red-500 text-center">{error}</div>}
+
+        {generatedPrompt && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-8 p-4 bg-gray-800 rounded-md shadow-md"
+          >
+            <h3 className="text-xl font-semibold mb-2">Generated Prompt:</h3>
+            <p className="whitespace-pre-wrap">{generatedPrompt}</p>
+          </motion.div>
+        )}
+
+        {generatedPost && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-8 p-4 bg-gray-800 rounded-md shadow-md"
+          >
+            <h3 className="text-xl font-semibold mb-2">Generated Post:</h3>
+            <p className="whitespace-pre-wrap">{generatedPost}</p>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
