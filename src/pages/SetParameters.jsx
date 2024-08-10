@@ -18,36 +18,57 @@ const SetParametersPage = () => {
     targetAudience: "",
     keywords: "",
   });
-const navigate=useNavigate()
-const [isLoading, setIsLoading] = useState(false);
-const [error, setError] = useState(null);
 
-const handleInputChange = (name, value) => {
-  setFormData((prevData) => ({
-    ...prevData,
-    [name]: value,
-  }));
-};
-const handleSubmit = (e) => {
-  e.preventDefault();
-  setIsLoading(true);
-  setError(null);
+  const [formErrors, setFormErrors] = useState({});
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  try {
-    // Store the form data in localStorage
-    localStorage.setItem("postParameters", JSON.stringify(formData));
+  const handleInputChange = (name, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    // Clear the error for this field when the user starts typing
+    setFormErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: undefined,
+    }));
+  };
 
-    // Navigate to the generated post page
-    navigate("/generated-post");
-  } catch (err) {
-    // This catch block will only run if there's an error with localStorage
-    console.error("Error storing data:", err);
-    setError("Failed to store post parameters. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
+  const validateForm = () => {
+    const errors = {};
+    Object.keys(formData).forEach((key) => {
+      if (formData[key] === null || formData[key] === "") {
+        errors[key] = "This field is required";
+      }
+    });
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Store the form data in localStorage
+      localStorage.setItem("postParameters", JSON.stringify(formData));
+
+      // Navigate to the generated post page
+      navigate("/generated-post");
+    } catch (err) {
+      // This catch block will only run if there's an error with localStorage
+      console.error("Error storing data:", err);
+      setError("Failed to store post parameters. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const toneOptions = [
     { value: "casual", label: "Casual" },
     { value: "professional", label: "Professional" },
@@ -120,7 +141,6 @@ const handleSubmit = (e) => {
     }),
   };
 
-
   return (
     <div className="min-h-screen  pb-6 bg-gray-900 text-white ">
       <Header />
@@ -146,34 +166,63 @@ const handleSubmit = (e) => {
               <textarea
                 value={formData.message}
                 onChange={(e) => handleInputChange("message", e.target.value)}
-                className="w-full px-3 py-2 resize-none text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-3 py-2 resize-none text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  formErrors.message ? "border-red-500" : ""
+                }`}
                 rows="3"
                 placeholder="Enter your main idea or topic here..."
               />
+              {formErrors.message && (
+                <p className="mt-1 text-sm text-red-500">
+                  {formErrors.message}
+                </p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">Tone</label>
               <Select
                 options={toneOptions}
-                styles={customSelectStyles}
+                styles={{
+                  ...customSelectStyles,
+                  control: (provided) => ({
+                    ...customSelectStyles.control(provided),
+                    borderColor: formErrors.tone
+                      ? "rgb(239, 68, 68)"
+                      : provided.borderColor,
+                  }),
+                }}
                 menuPortalTarget={document.body}
                 onChange={(selectedOption) =>
                   handleInputChange("tone", selectedOption)
                 }
                 placeholder="Select tone..."
               />
+              {formErrors.tone && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.tone}</p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">Emotion</label>
               <Select
                 options={emotionOptions}
-                styles={customSelectStyles}
+                styles={{
+                  ...customSelectStyles,
+                  control: (provided) => ({
+                    ...customSelectStyles.control(provided),
+                    borderColor: formErrors.tone
+                      ? "rgb(239, 68, 68)"
+                      : provided.borderColor,
+                  }),
+                }}
                 menuPortalTarget={document.body}
                 onChange={(selectedOption) =>
                   handleInputChange("emotion", selectedOption)
                 }
                 placeholder="Select emotion..."
               />
+              {formErrors.tone && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.tone}</p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">
@@ -181,25 +230,47 @@ const handleSubmit = (e) => {
               </label>
               <Select
                 options={postTypeOptions}
-                styles={customSelectStyles}
+                styles={{
+                  ...customSelectStyles,
+                  control: (provided) => ({
+                    ...customSelectStyles.control(provided),
+                    borderColor: formErrors.tone
+                      ? "rgb(239, 68, 68)"
+                      : provided.borderColor,
+                  }),
+                }}
                 menuPortalTarget={document.body}
                 onChange={(selectedOption) =>
                   handleInputChange("postType", selectedOption)
                 }
                 placeholder="Select post type..."
               />
+              {formErrors.tone && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.tone}</p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">Length</label>
               <Select
                 options={lengthOptions}
-                styles={customSelectStyles}
+                styles={{
+                  ...customSelectStyles,
+                  control: (provided) => ({
+                    ...customSelectStyles.control(provided),
+                    borderColor: formErrors.tone
+                      ? "rgb(239, 68, 68)"
+                      : provided.borderColor,
+                  }),
+                }}
                 menuPortalTarget={document.body}
                 onChange={(selectedOption) =>
                   handleInputChange("length", selectedOption)
                 }
                 placeholder="Select length..."
               />
+              {formErrors.tone && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.tone}</p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">
@@ -207,13 +278,24 @@ const handleSubmit = (e) => {
               </label>
               <Select
                 options={emojiOptions}
-                styles={customSelectStyles}
+                styles={{
+                  ...customSelectStyles,
+                  control: (provided) => ({
+                    ...customSelectStyles.control(provided),
+                    borderColor: formErrors.tone
+                      ? "rgb(239, 68, 68)"
+                      : provided.borderColor,
+                  }),
+                }}
                 menuPortalTarget={document.body}
                 onChange={(selectedOption) =>
                   handleInputChange("emojiUsage", selectedOption)
                 }
                 placeholder="Select emoji usage..."
               />
+              {formErrors.tone && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.tone}</p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">
@@ -221,13 +303,24 @@ const handleSubmit = (e) => {
               </label>
               <Select
                 options={hashtagOptions}
-                styles={customSelectStyles}
+                styles={{
+                  ...customSelectStyles,
+                  control: (provided) => ({
+                    ...customSelectStyles.control(provided),
+                    borderColor: formErrors.tone
+                      ? "rgb(239, 68, 68)"
+                      : provided.borderColor,
+                  }),
+                }}
                 menuPortalTarget={document.body}
                 onChange={(selectedOption) =>
                   handleInputChange("hashtagPreference", selectedOption)
                 }
                 placeholder="Select hashtag preference..."
               />
+              {formErrors.tone && (
+                <p className="mt-1 text-sm text-red-500">{formErrors.tone}</p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">
@@ -239,9 +332,16 @@ const handleSubmit = (e) => {
                 onChange={(e) =>
                   handleInputChange("targetAudience", e.target.value)
                 }
-                className="w-full px-3 py-2 text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-3 py-2 text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  formErrors.targetAudience ? "border-red-500" : ""
+                }`}
                 placeholder="e.g., Young professionals, Tech enthusiasts"
               />
+              {formErrors.targetAudience && (
+                <p className="mt-1 text-sm text-red-500">
+                  {formErrors.targetAudience}
+                </p>
+              )}
             </motion.div>
             <motion.div whileHover={{ scale: 1.02 }}>
               <label className="block text-sm font-medium mb-1">Keywords</label>
@@ -249,9 +349,16 @@ const handleSubmit = (e) => {
                 type="text"
                 value={formData.keywords}
                 onChange={(e) => handleInputChange("keywords", e.target.value)}
-                className="w-full px-3 py-2 text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className={`w-full px-3 py-2 text-gray-300 bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                  formErrors.targetAudience ? "border-red-500" : ""
+                }`}
                 placeholder="Enter comma-separated keywords"
               />
+              {formErrors.targetAudience && (
+                <p className="mt-1 text-sm text-red-500">
+                  {formErrors.targetAudience}
+                </p>
+              )}
             </motion.div>
           </div>
           <motion.div
@@ -276,8 +383,6 @@ const handleSubmit = (e) => {
           </motion.div>
         </form>
         {error && <div className="mt-4 text-red-500 text-center">{error}</div>}
-
-     
       </motion.div>
     </div>
   );
