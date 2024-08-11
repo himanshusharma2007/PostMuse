@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,26 +10,36 @@ import LoadingAnimation from "../components/LoadingAnimation";
 import Header from "../components/Header";
 import { FaPaperPlane } from "react-icons/fa";
 import { FaCopy, FaSync } from "react-icons/fa";
+import { savePost, updatePost } from "../Services/postService";
 
 const GeneratedPost = () => {
+  const [postId, setPostId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState("");
   const [generatedPost, setGeneratedPost] = useState("");
   const [userInput, setUserInput] = useState("");
   const navigate = useNavigate();
+  const contentGeneratedRef = useRef(false);
 
   useEffect(() => {
     const storedPost = localStorage.getItem("generatedPost");
-    if (storedPost) {
+    console.log("use effect called");
+
+    if (storedPost && storedPost.trim() !== "") {
       setGeneratedPost(storedPost);
-    } else {
+    } else if (!contentGeneratedRef.current) {
+      contentGeneratedRef.current = true;
       generateContent(false);
     }
   }, []);
 
   const generateContent = async (regen) => {
+    if (loading) return; // Prevent multiple simultaneous calls
+
+    console.log("generate content called");
     setLoading(true);
     setLoadingStage(regen ? "Regenerating post..." : "Generating prompt...");
+
     try {
       const storedParameters = JSON.parse(
         localStorage.getItem("postParameters")
@@ -40,12 +50,14 @@ const GeneratedPost = () => {
       }
 
       const prompt = await generatePrompt(storedParameters);
-
-      setLoadingStage("Creating post...");
+      console.log("prompt :>> ", prompt);
+      setLoadingStage(regen ? "Regenerating post..." : "Creating post...");
       const post = await generatePost(prompt);
-
+      console.log("post :>> ", post);
       setGeneratedPost(post);
       localStorage.setItem("generatedPost", post);
+      const savedPostId = await savePost(post, storedParameters);
+      setPostId(savedPostId);
     } catch (error) {
       console.error("Error generating content:", error);
       // Handle error (e.g., show error message to user)
@@ -60,7 +72,7 @@ const GeneratedPost = () => {
     setLoading(true);
     setLoadingStage("Refining post...");
     try {
-      const refinedPost = await refinePost(userInput, generatedPost);
+      const refinedPost = await refinePost(userInput, generatedPost, postId);
       setGeneratedPost(refinedPost);
       localStorage.setItem("generatedPost", refinedPost);
       setUserInput("");
@@ -84,7 +96,20 @@ const GeneratedPost = () => {
   };
 
   const handleReload = () => {
+    console.log("handleReload called");
+    contentGeneratedRef.current = false; // Reset the ref
     generateContent(true);
+  };
+  const formatPost = (post) => {
+    const paragraphs = post.split("\n\n");
+    return paragraphs.map((paragraph, index) => {
+      const formattedParagraph = paragraph.replace(/\n/g, " ");
+      return (
+        <p key={index} className="mb-4">
+          {formattedParagraph}
+        </p>
+      );
+    });
   };
   return (
     <div className=" min-h-screen flex justify-center items-center bg-gray-900 text-white ">
@@ -122,7 +147,9 @@ const GeneratedPost = () => {
                   <FaSync className="mr-2" /> Regenerate
                 </button>
               </div>
-              <p className="whitespace-pre-wrap pt-3">{generatedPost}</p>
+              <p className="whitespace-pre-wrap pt-3">
+                {formatPost(generatedPost)}
+              </p>
             </div>
             <div className="mt-8 fixed bottom-10 left-1/2 -translate-x-1/2">
               <div className="wraper relative  ">

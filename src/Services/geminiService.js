@@ -1,10 +1,11 @@
 // src/services/geminiService.js
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import { updatePost } from "./postService";
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 export async function generatePrompt(parameters) {
+  console.log("generate prompt called")
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   const promptForGemini = createPromptForGemini(parameters);
@@ -18,7 +19,7 @@ export async function generatePrompt(parameters) {
     throw error;
   }
 }
-export async function refinePost(userInput, generatedPost) {
+export async function refinePost(userInput, generatedPost, postId) {
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   const refinePrompt = `
@@ -32,17 +33,27 @@ export async function refinePost(userInput, generatedPost) {
 
     Please modify the post to incorporate the user's input while maintaining the original tone and style. Ensure the refined post is coherent and engaging.
   `;
-console.log(refinePrompt);
+  console.log(refinePrompt);
+
   try {
     const result = await model.generateContent(refinePrompt);
     const response = await result.response;
-    return response.text();
+    const refinedPost = response.text();
+
+    // Update the post in Firestore
+    if (postId) {
+      await updatePost(postId, refinedPost);
+    }
+
+    return refinedPost;
   } catch (error) {
     console.error("Error refining post:", error);
     throw error;
   }
 }
 export async function generatePost(prompt) {
+  console.log("generate post called");
+
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
   try {

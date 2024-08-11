@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Select from "react-select";
 import { FaPaperPlane, FaSmile, FaHashtag, FaQuoteLeft } from "react-icons/fa";
 import { MdTune } from "react-icons/md";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
-
 const SetParametersPage = () => {
+
   const [formData, setFormData] = useState({
     tone: null,
     emotion: null,
@@ -24,6 +24,9 @@ const SetParametersPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  useEffect(()=>{
+     localStorage.setItem("generatedPost", "");
+  },[]);
   const handleInputChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
