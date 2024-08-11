@@ -19,7 +19,7 @@ const LoadingAnimation = ({ stage }) => {
         }}
         className="w-16 h-16 bg-purple-600"
       />
-      <p className="mt-4 text-xl font-semibold">{stage}</p>
+      <p className="mt-8 text-xl font-semibold">{stage}</p>
     </div>
   );
 };

@@ -1,63 +1,98 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { generatePrompt, generatePost } from "../Services/geminiService";
+import {
+  generatePrompt,
+  generatePost,
+  refinePost,
+} from "../Services/geminiService";
 import LoadingAnimation from "../components/LoadingAnimation";
 import Header from "../components/Header";
 import { FaPaperPlane } from "react-icons/fa";
+import { FaCopy, FaSync } from "react-icons/fa";
 
 const GeneratedPost = () => {
-  const [loading, setLoading] = useState(true);
-  const [loadingStage, setLoadingStage] = useState("Generating prompt...");
+  const [loading, setLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState("");
   const [generatedPost, setGeneratedPost] = useState("");
   const [userInput, setUserInput] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    generateContent();
+    const storedPost = localStorage.getItem("generatedPost");
+    if (storedPost) {
+      setGeneratedPost(storedPost);
+    } else {
+      generateContent(false);
+    }
   }, []);
 
-  const generateContent = async () => {
+  const generateContent = async (regen) => {
+    setLoading(true);
+    setLoadingStage(regen ? "Regenerating post..." : "Generating prompt...");
     try {
-      setLoadingStage("Generating prompt...");
-      const prompt = await generatePrompt(/* pass necessary parameters */);
+      const storedParameters = JSON.parse(
+        localStorage.getItem("postParameters")
+      );
+
+      if (!storedParameters) {
+        throw new Error("No parameters found in localStorage");
+      }
+
+      const prompt = await generatePrompt(storedParameters);
 
       setLoadingStage("Creating post...");
       const post = await generatePost(prompt);
 
       setGeneratedPost(post);
-      setLoading(false);
+      localStorage.setItem("generatedPost", post);
     } catch (error) {
       console.error("Error generating content:", error);
+      // Handle error (e.g., show error message to user)
+    } finally {
       setLoading(false);
     }
   };
 
   const handleUserInput = async () => {
+    if (!userInput.trim()) return;
+
     setLoading(true);
     setLoadingStage("Refining post...");
     try {
-      const refinedPost = await generatePost(userInput, generatedPost);
+      const refinedPost = await refinePost(userInput, generatedPost);
       setGeneratedPost(refinedPost);
+      localStorage.setItem("generatedPost", refinedPost);
       setUserInput("");
     } catch (error) {
       console.error("Error refining post:", error);
+      // Handle error (e.g., show error message to user)
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const openInEditor = () => {
     // Navigate to the editor page, passing the generated post as a parameter
     navigate("/editor", { state: { post: generatedPost } });
   };
+  const handleCopy = () => {
+    navigator.clipboard.writeText(generatedPost).then(() => {
+      // You can add a toast notification here to inform the user that the text has been copied
+      console.log("Text copied to clipboard");
+    });
+  };
 
+  const handleReload = () => {
+    generateContent(true);
+  };
   return (
-    <div className=" min-h-screen bg-gray-900 text-white ">
+    <div className=" min-h-screen flex justify-center items-center bg-gray-900 text-white ">
       <Header />
-      <div className="relative container mx-auto px-8 pt-[12vh] pb-8">
-        {loading ? (
-          <LoadingAnimation stage={loadingStage} />
-        ) : (
+      {loading ? (
+        <LoadingAnimation stage={loadingStage} />
+      ) : (
+        <div className="relative container mx-auto px-8 pt-[12vh] pb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -72,10 +107,24 @@ const GeneratedPost = () => {
                 Open in Editor
               </button>
             </div>
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg mb-8 md:min-h-[60vh]">
-              <p className="whitespace-pre-wrap">{generatedPost}</p>
+            <div className="bg-gray-800 px-6 pb-6 rounded-lg shadow-lg mb-8 max-h-[60vh] overflow-auto relative">
+              <div className="sticky   top-1 right-2 flex justify-end space-x-2">
+                <button
+                  onClick={handleCopy}
+                  className="bg-gray-800 hover:bg-gray-700 text-white text-sm py-1 px-2 rounded flex items-center"
+                >
+                  <FaCopy className="mr-2" /> Copy
+                </button>
+                <button
+                  onClick={handleReload}
+                  className="bg-gray-800 hover:bg-gray-700 text-white text-sm py-2 px-4 rounded flex items-center"
+                >
+                  <FaSync className="mr-2" /> Regenerate
+                </button>
+              </div>
+              <p className="whitespace-pre-wrap pt-3">{generatedPost}</p>
             </div>
-            <div className="mt-8 absolute bottom-3 left-1/2 -translate-x-1/2">
+            <div className="mt-8 fixed bottom-10 left-1/2 -translate-x-1/2">
               <div className="wraper relative  ">
                 <textarea
                   value={userInput}
@@ -93,8 +142,8 @@ const GeneratedPost = () => {
               </div>
             </div>
           </motion.div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
