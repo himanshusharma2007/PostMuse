@@ -9,6 +9,8 @@ import {
   ListItemText,
 } from "@mui/material";
 import { BiMenu } from "react-icons/bi";
+import { IoMdClose } from "react-icons/io";
+import { RiMenu3Line } from "react-icons/ri";
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -34,26 +36,45 @@ const Header = () => {
   };
 
   const drawerList = (
-    <List>
-      {navItems.map((item) => (
-        <ListItem
-          button
-          key={item.title}
-          component={Link}
-          to={item.path}
-          onClick={toggleDrawer(false)}
-          selected={isCurrentPath(item.path)}
-        >
-          <ListItemText primary={item.title} />
-        </ListItem>
-      ))}
-    </List>
+    <div className="h-full bg-gray-900 text-white p-6">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-2xl font-bold">PostMuse</h2>
+        <IconButton onClick={toggleDrawer(false)} className="text-white">
+          <IoMdClose size={24} />
+        </IconButton>
+      </div>
+      <List>
+        {navItems.map((item) => (
+          <ListItem
+            button
+            key={item.title}
+            component={Link}
+            to={item.path}
+            onClick={toggleDrawer(false)}
+            selected={isCurrentPath(item.path)}
+            className={`mb-2 rounded-lg transition-colors ${
+              isCurrentPath(item.path)
+                ? "bg-purple-600 text-white"
+                : "hover:bg-gray-800"
+            }`}
+          >
+            <ListItemText
+              primary={item.title}
+              className="py-2"
+              primaryTypographyProps={{
+                className: "text-lg font-medium",
+              }}
+            />
+          </ListItem>
+        ))}
+      </List>
+    </div>
   );
 
   return (
     <header className="fixed h-[12vh] w-full mx-auto px-8 bg-gray-900 py-6 flex justify-between items-center z-40 top-0">
       <motion.h1
-        className="text-3xl font-bold"
+        className="text-3xl font-bold text-white"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -73,7 +94,7 @@ const Header = () => {
                 to={item.path}
                 className={`transition ${
                   isCurrentPath(item.path)
-                    ? " text-white"
+                    ? "text-white"
                     : "text-gray-300 hover:text-purple-400"
                 }`}
               >
@@ -90,9 +111,20 @@ const Header = () => {
           aria-label="menu"
           onClick={toggleDrawer(true)}
         >
-          <BiMenu />
+          <RiMenu3Line className="text-white" size={24} />
         </IconButton>
-        <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <Drawer
+          anchor="right"
+          open={drawerOpen}
+          onClose={toggleDrawer(false)}
+          PaperProps={{
+            style: {
+              width: "70%", // Adjust as needed
+              maxWidth: "300px", // Maximum width
+              backgroundColor: "transparent",
+            },
+          }}
+        >
           {drawerList}
         </Drawer>
       </div>

@@ -31,7 +31,7 @@ export async function refinePost(userInput, generatedPost, postId) {
     User's refinement request:
     "${userInput}"
 
-    Please modify the post to incorporate the user's input while maintaining the original tone and style. Ensure the refined post is coherent and engaging.
+    Please modify the post to incorporate the user's input while maintaining the original tone and style. Ensure the refined post is coherent and engaging. change only the things that user askked for  reset of the post should be remains same.
   `;
   console.log(refinePrompt);
 
@@ -65,7 +65,15 @@ export async function generatePost(prompt) {
     throw error;
   }
 }
-
+export async function saveEditedPost(postId, editedContent) {
+  try {
+    await updatePost(postId, editedContent);
+    return true;
+  } catch (error) {
+    console.error("Error saving edited post:", error);
+    throw error;
+  }
+}
 function createPromptForGemini(parameters) {
   const {
     tone,

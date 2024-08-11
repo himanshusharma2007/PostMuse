@@ -6,8 +6,9 @@ import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import { getUserPosts } from "../Services/postService";
 import Header from "../components/Header";
-import { BiCross } from "react-icons/bi";
+import { BiCross, BiEdit } from "react-icons/bi";
 import { RiCloseLargeFill } from "react-icons/ri";
+import { BsEye } from "react-icons/bs";
 
 Modal.setAppElement("#root");
 
@@ -20,17 +21,23 @@ const MyPosts = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
+const fetchPosts = async () => {
+  try {
+    const userPosts = await getUserPosts();
+    console.log(userPosts); // Log the posts to see the structure
 
-  const fetchPosts = async () => {
-    try {
-      const userPosts = await getUserPosts();
-      setPosts(
-        userPosts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate())
-      );
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-    }
-  };
+    setPosts(
+      userPosts.sort((a, b) => {
+        console.log(a.createdAt, b.createdAt); // Log createdAt to see the type
+        return b.createdAt - a.createdAt;
+      })
+    );
+  } catch (error) {
+    console.error("Error fetching posts:", error);
+  }
+};
+
+
 
   const handleViewPost = (post) => {
     setSelectedPost(post);
@@ -84,15 +91,21 @@ const MyPosts = () => {
           <div>
             <button
               onClick={() => handleViewPost(post)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white md:font-bold py-2 px-4 rounded mr-2"
             >
-              View
+              <span>
+                <BsEye />
+              </span>
+              <span className="hidden md:block"> View</span>
             </button>
             <button
               onClick={() => handleEditPost(post)}
-              className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+              className="bg-green-600 hover:bg-green-700 text-white md:font-bold py-2 px-4 rounded"
             >
-              Edit
+              <span className="">
+                <BiEdit />
+              </span>
+              <span className="hidden md:block"> Edit</span>
             </button>
           </div>
         </div>
@@ -114,7 +127,7 @@ const MyPosts = () => {
       <Modal
         isOpen={isModalOpen}
         onRequestClose={() => setIsModalOpen(false)}
-        className="modal  fixed inset-0 flex items-center justify-center"
+        className="modal  fixed top-0 inset-0 flex items-center justify-center"
         overlayClassName="overlay fixed inset-0 bg-black bg-opacity-75"
       >
         {selectedPost && (
@@ -129,7 +142,7 @@ const MyPosts = () => {
                   <RiCloseLargeFill fontSize={25} />
                 </button>
               </div>
-              <h2 className="text-2xl font-bold mb-4 text-purple-400">
+              <h2 className="text-xl md:text-2xl font-bold mb-4 text-purple-400">
                 {selectedPost.parameters.message}
               </h2>
               <p className="text-gray-300 mb-4 whitespace-pre-wrap max-h-[50vh] overflow-auto">

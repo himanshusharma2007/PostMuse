@@ -5,10 +5,10 @@ import Meteors from "../components/Meteors";
 import {
   FaRobot,
   FaPalette,
-  FaGlobeAmericas,
+  FaEdit,
   FaChartLine,
-  FaLightbulb,
-  FaShieldAlt,
+  FaHistory,
+  FaSyncAlt,
 } from "react-icons/fa";
 import { BiRightArrow } from "react-icons/bi";
 import { BsArrowRight } from "react-icons/bs";
@@ -16,38 +16,38 @@ import { CgArrowRight } from "react-icons/cg";
 import Header from "../components/Header";
 // import Meteors from "@/components/magicui/meteors";
 const LandingPage = () => {
-  const features = [
-    {
-      icon: FaRobot,
-      title: "AI-Powered Creativity",
-      desc: "Harness cutting-edge AI to generate engaging, original content tailored to your voice.",
-    },
-    {
-      icon: FaPalette,
-      title: "Emotional Intelligence",
-      desc: "Craft posts that resonate with your audience by fine-tuning tone and sentiment.",
-    },
-    {
-      icon: FaGlobeAmericas,
-      title: "Multi-Platform Mastery",
-      desc: "Optimize your content for various social networks with platform-specific suggestions.",
-    },
-    {
-      icon: FaChartLine,
-      title: "Performance Insights",
-      desc: "Gain valuable analytics to understand and improve your social media impact.",
-    },
-    {
-      icon: FaLightbulb,
-      title: "Inspiration on Demand",
-      desc: "Overcome writer's block with AI-generated ideas and prompts.",
-    },
-    {
-      icon: FaShieldAlt,
-      title: "Content Safety Check",
-      desc: "Ensure your posts are appropriate and aligned with platform guidelines.",
-    },
-  ];
+const features = [
+  {
+    icon: FaRobot,
+    title: "AI-Powered Content Generation",
+    desc: "Utilize Google's Gemini AI to create engaging, personalized social media posts based on your inputs.",
+  },
+  {
+    icon: FaPalette,
+    title: "Customizable Post Parameters",
+    desc: "Fine-tune your post's tone, emotion, length, and style to match your intended message and audience.",
+  },
+  {
+    icon: FaEdit,
+    title: "Interactive Post Editing",
+    desc: "Edit and refine AI-generated content using AI or with an in-built text editor, complete with formatting tools.",
+  },
+  {
+    icon: FaChartLine,
+    title: "Enhance Post Impressions",
+    desc: "Boost your post's visibility by delivering high-quality content that resonates with your audience.",
+  },
+  {
+    icon: FaHistory,
+    title: "Post History",
+    desc: "Access and manage your previously generated posts for easy reference and reuse.",
+  },
+  {
+    icon: FaSyncAlt,
+    title: "Post Regeneration",
+    desc: "Not satisfied? Quickly regenerate your post with the click of a button for new ideas and variations.",
+  },
+];
 
   const workflowSteps = [
     {
@@ -73,18 +73,17 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen font-sans">
+    <div className="bg-gray-900 text-white min-h-screen font-sans overflow-hidden">
       {/* Header */}
-      <div className="page1 md:min-h-screen flex flex-col justify-between">
+      <Header />
+      <div className="page1 min-h-screen flex flex-col justify-end md:justify-between ">
         {/* Header */}
-        <Meteors number={50} />
-      
-          <Header />
+        <Meteors number={60} />
 
         {/* Hero Section */}
-        <section className="flex-grow flex flex-col justify-end items-center container mx-auto px-4 py-20 text-center pt-[12vh] mb-10">
+        <section className="flex-grow flex flex-col justify-end items-center container mx-auto px-4 py-20 text-center  mb-10 ">
           <motion.h2
-            className="text-5xl font-bold mb-4 max-w-3xl leading-tight"
+            className="text-4xl md:text-5xl font-bold mb-4 max-w-3xl leading-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
@@ -147,7 +146,7 @@ const LandingPage = () => {
       </section>
 
       {/* How it Works Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800">
+      <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800 px-2">
         <div className="container mx-auto px-4">
           <motion.h2
             className="text-4xl font-bold mb-12 text-center"
@@ -171,7 +170,7 @@ const LandingPage = () => {
                 </div>
                 <div>
                   <h3 className="text-xl font-semibold mb-1">{step.title}</h3>
-                  <p className="text-gray-300">{step.desc}</p>
+                  <p className="text-gray-300 max-w-[300px]">{step.desc}</p>
                 </div>
               </motion.div>
             ))}
