@@ -73,8 +73,8 @@ const Header = () => {
                 to={item.path}
                 className={`transition ${
                   isCurrentPath(item.path)
-                    ? " border-b-2  border-b-purple-600"
-                    : "hover:text-purple-400"
+                    ? " text-white"
+                    : "text-gray-300 hover:text-purple-400"
                 }`}
               >
                 {item.title}

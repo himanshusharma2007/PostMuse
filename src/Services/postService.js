@@ -8,6 +8,8 @@ import {
   getDocs,
   query,
   where,
+  Timestamp ,
+  orderBy,
 } from "firebase/firestore";
 import { getUserId } from "./userService";
 
@@ -18,8 +20,8 @@ export const savePost = async (post, parameters) => {
       userId,
       content: post,
       parameters,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: Timestamp.now(),
+      updatedAt: Timestamp.now(),
     });
     return docRef.id;
   } catch (error) {
@@ -40,15 +42,21 @@ export const updatePost = async (postId, newContent) => {
     throw error;
   }
 };
-
 export const getUserPosts = async () => {
   const userId = getUserId();
   try {
     const q = query(collection(db, "posts"), where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const posts = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt.toDate(), // Convert Firestore Timestamp to JavaScript Date
+    }));
+
+    // Sort posts by createdAt in descending order
+    return posts.sort((a, b) => b.createdAt - a.createdAt);
   } catch (error) {
-    console.error("Error getting user posts: ", error);
+    console.error("Error getting user posts:", error);
     throw error;
   }
 };

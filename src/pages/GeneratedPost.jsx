@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   generatePrompt,
   generatePost,
@@ -19,19 +19,23 @@ const GeneratedPost = () => {
   const [generatedPost, setGeneratedPost] = useState("");
   const [userInput, setUserInput] = useState("");
   const navigate = useNavigate();
+    const location = useLocation();
   const contentGeneratedRef = useRef(false);
 
   useEffect(() => {
-    const storedPost = localStorage.getItem("generatedPost");
-    console.log("use effect called");
-
-    if (storedPost && storedPost.trim() !== "") {
-      setGeneratedPost(storedPost);
-    } else if (!contentGeneratedRef.current) {
-      contentGeneratedRef.current = true;
-      generateContent(false);
+    if (location.state?.postId && location.state?.post) {
+      setPostId(location.state.postId);
+      setGeneratedPost(location.state.post);
+    } else {
+      const storedPost = localStorage.getItem("generatedPost");
+      if (storedPost && storedPost.trim() !== "") {
+        setGeneratedPost(storedPost);
+      } else if (!contentGeneratedRef.current) {
+        contentGeneratedRef.current = true;
+        generateContent(false);
+      }
     }
-  }, []);
+  }, [location]);
 
   const generateContent = async (regen) => {
     if (loading) return; // Prevent multiple simultaneous calls
