@@ -68,14 +68,16 @@ const LandingPage = () => {
       desc: "Do a final check and share your masterpiece with the world.",
     },
   ];
- 
+
   return (
-    <div className="bg-gray-900 text-white min-h-screen font-sans overflow-hidden">
-      {/* Header */}
+    <div className="bg-gray-900 text-white min-h-screen font-sans overflow-x-hidden">
       <Header />
+
       <div className="page1 min-h-screen flex flex-col justify-end md:justify-between ">
-        {/* Header */}
+        <div className="wraper hidden lg:block">
+
         <Meteors number={60} />
+        </div>
 
         {/* Hero Section */}
         <section className="flex-grow flex flex-col justify-end items-center container mx-auto px-4 py-20 text-center  mb-10 ">
