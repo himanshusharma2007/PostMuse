@@ -74,43 +74,47 @@ const LandingPage = () => {
       <Header />
 
       <div className="page1 min-h-screen flex flex-col justify-end md:justify-between ">
-        <div className="wraper hidden lg:block">
-
-        <Meteors number={60} />
+        <div className="absolute wraper hidden lg:block">
+          <Meteors number={60} />
         </div>
 
         {/* Hero Section */}
-        <section className="flex-grow flex flex-col justify-end items-center container mx-auto px-4 py-20 text-center  mb-10 ">
-          <motion.h2
-            className="text-4xl md:text-5xl font-bold mb-4 max-w-3xl leading-tight"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-          >
-            Craft Compelling Social Media Posts with{" "}
-            <span className="text-purple-600">PostMose</span> AI
-          </motion.h2>
-          <motion.p
-            className="text-xl mb-8 max-w-md"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            Express yourself effortlessly and engage your audience like never
-            before
-          </motion.p>
-          <Link to="/create">
-            <motion.button
-              className="flex justify-center items-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg hover:shadow-xl space-x-3 transition duration-300"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+        <section
+          className="flex-grow relative flex flex-col justify-center items-center container mx-auto px-4 
+         text-center  mb-10"
+        >
+          <div className="absolute bottom-20 wraper flex flex-col justify-center items-center ">
+            <motion.h2
+              className="text-3xl md:text-5xl font-bold mb-4 max-w-3xl leading-tight"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <span>Get Started</span>{" "}
-              <span>
-                <CgArrowRight />
-              </span>
-            </motion.button>
-          </Link>
+              Craft Compelling Social Media Posts with{" "}
+              <span className="text-purple-600">PostMose</span> AI
+            </motion.h2>
+            <motion.p
+              className="text-lg md:text-xl mb-8 max-w-md px-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              Express yourself effortlessly and engage your audience like never
+              before
+            </motion.p>
+            <Link to="/create">
+              <motion.button
+                className="flex justify-center items-center bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg hover:shadow-xl space-x-3 transition duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <span>Get Started</span>{" "}
+                <span>
+                  <CgArrowRight />
+                </span>
+              </motion.button>
+            </Link>
+          </div>
         </section>
       </div>
 

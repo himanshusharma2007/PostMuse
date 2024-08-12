@@ -41,7 +41,7 @@ const AboutUs = () => {
       <Header />
       <div className="container mx-auto px-4 pt-[12vh] pb-10">
         <motion.h1
-          className="text-4xl md:text-5xl font-bold text-center mb-8"
+          className="text-3xl md:text-5xl font-bold text-center mb-8"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -141,7 +141,10 @@ const AboutUs = () => {
             provide the best possible experience for our users. Your feedback is
             invaluable to us in this journey.
           </p>
-          <form onSubmit={handleSubmit} className="max-w-lg mx-auto mt-14 inline-block w-96">
+          <form
+            onSubmit={handleSubmit}
+            className="max-w-lg mx-auto mt-14 inline-block w-64 md:w-96"
+          >
             <div className="mb-4">
               <label htmlFor="name" className="block mb-2">
                 Name

@@ -72,7 +72,7 @@ const Header = () => {
   );
 
   return (
-    <header className="fixed h-[12vh] w-full mx-auto px-8 bg-gray-900 py-6 flex justify-between items-center z-40 top-0">
+    <header className="fixed h-[12vh] w-full mx-auto px-4 md:px-8 bg-gray-900 py-6 flex justify-between items-center z-40 top-0">
       <motion.h1
         className="text-3xl font-bold text-white"
         initial={{ opacity: 0, y: -20 }}
