@@ -73,7 +73,7 @@ const LandingPage = () => {
     <div className="bg-gray-900 text-white min-h-screen font-sans overflow-x-hidden">
       <Header />
 
-      <div className="page1 min-h-screen flex flex-col justify-end md:justify-between ">
+      <div className="page1 min-h-[100dvh] flex flex-col justify-end md:justify-between ">
         <div className="absolute wraper hidden lg:block">
           <Meteors number={60} />
         </div>
