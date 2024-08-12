@@ -1,4 +1,3 @@
-// src/components/MyPosts.jsx
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Modal from "react-modal";
@@ -21,23 +20,22 @@ const MyPosts = () => {
   useEffect(() => {
     fetchPosts();
   }, []);
-const fetchPosts = async () => {
-  try {
-    const userPosts = await getUserPosts();
-    console.log(userPosts); // Log the posts to see the structure
 
-    setPosts(
-      userPosts.sort((a, b) => {
-        console.log(a.createdAt, b.createdAt); // Log createdAt to see the type
-        return b.createdAt - a.createdAt;
-      })
-    );
-  } catch (error) {
-    console.error("Error fetching posts:", error);
-  }
-};
+  const fetchPosts = async () => {
+    try {
+      const userPosts = await getUserPosts();
+      console.log(userPosts); // Log the posts to see the structure
 
-
+      setPosts(
+        userPosts.sort((a, b) => {
+          console.log(a.createdAt, b.createdAt); // Log createdAt to see the type
+          return b.createdAt - a.createdAt;
+        })
+      );
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
 
   const handleViewPost = (post) => {
     setSelectedPost(post);
@@ -88,10 +86,10 @@ const fetchPosts = async () => {
           <span className="text-sm text-gray-400">
             {formatDate(post.createdAt)}
           </span>
-          <div>
+          <div className="flex space-x-1 items-center">
             <button
               onClick={() => handleViewPost(post)}
-              className="bg-blue-600 hover:bg-blue-700 text-white md:font-bold py-2 px-4 rounded mr-2"
+              className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white  py-2 px-4 rounded mr-2"
             >
               <span>
                 <BsEye />
@@ -100,7 +98,7 @@ const fetchPosts = async () => {
             </button>
             <button
               onClick={() => handleEditPost(post)}
-              className="bg-green-600 hover:bg-green-700 text-white md:font-bold py-2 px-4 rounded"
+              className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 text-white  py-2 px-4 rounded"
             >
               <span className="">
                 <BiEdit />
@@ -118,11 +116,21 @@ const fetchPosts = async () => {
       <Header />
       <div className="container mx-auto px-4 pt-20 pb-12">
         <h1 className="text-4xl font-bold mb-8 text-center">My Posts</h1>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
+        {posts.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center text-gray-400 mt-12">
+            <h2 className="text-2xl font-semibold mb-4">No Posts Yet</h2>
+            <p className="text-lg">
+              You haven't created any posts yet. Start sharing your thoughts and
+              ideas now!
+            </p>
+          </div>
+        )}
       </div>
       <Modal
         isOpen={isModalOpen}

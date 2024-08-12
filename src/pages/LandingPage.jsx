@@ -14,40 +14,41 @@ import { BiRightArrow } from "react-icons/bi";
 import { BsArrowRight } from "react-icons/bs";
 import { CgArrowRight } from "react-icons/cg";
 import Header from "../components/Header";
+import FAQSection from "../components/FAQSection";
 // import Meteors from "@/components/magicui/meteors";
 const LandingPage = () => {
-const features = [
-  {
-    icon: FaRobot,
-    title: "AI-Powered Content Generation",
-    desc: "Utilize Google's Gemini AI to create engaging, personalized social media posts based on your inputs.",
-  },
-  {
-    icon: FaPalette,
-    title: "Customizable Post Parameters",
-    desc: "Fine-tune your post's tone, emotion, length, and style to match your intended message and audience.",
-  },
-  {
-    icon: FaEdit,
-    title: "Interactive Post Editing",
-    desc: "Edit and refine AI-generated content using AI or with an in-built text editor, complete with formatting tools.",
-  },
-  {
-    icon: FaChartLine,
-    title: "Enhance Post Impressions",
-    desc: "Boost your post's visibility by delivering high-quality content that resonates with your audience.",
-  },
-  {
-    icon: FaHistory,
-    title: "Post History",
-    desc: "Access and manage your previously generated posts for easy reference and reuse.",
-  },
-  {
-    icon: FaSyncAlt,
-    title: "Post Regeneration",
-    desc: "Not satisfied? Quickly regenerate your post with the click of a button for new ideas and variations.",
-  },
-];
+  const features = [
+    {
+      icon: FaRobot,
+      title: "AI-Powered Content Generation",
+      desc: "Utilize Google's Gemini AI to create engaging, personalized social media posts based on your inputs.",
+    },
+    {
+      icon: FaPalette,
+      title: "Customizable Post Parameters",
+      desc: "Fine-tune your post's tone, emotion, length, and style to match your intended message and audience.",
+    },
+    {
+      icon: FaEdit,
+      title: "Interactive Post Editing",
+      desc: "Edit and refine AI-generated content using AI or with an in-built text editor, complete with formatting tools.",
+    },
+    {
+      icon: FaChartLine,
+      title: "Enhance Post Impressions",
+      desc: "Boost your post's visibility by delivering high-quality content that resonates with your audience.",
+    },
+    {
+      icon: FaHistory,
+      title: "Post History",
+      desc: "Access and manage your previously generated posts for easy reference and reuse.",
+    },
+    {
+      icon: FaSyncAlt,
+      title: "Post Regeneration",
+      desc: "Not satisfied? Quickly regenerate your post with the click of a button for new ideas and variations.",
+    },
+  ];
 
   const workflowSteps = [
     {
@@ -63,15 +64,11 @@ const features = [
       desc: "Refine and add your personal touch to the generated content.",
     },
     {
-      title: "Optimize",
-      desc: "Receive suggestions to maximize engagement for your chosen platform.",
-    },
-    {
       title: "Review and Post",
       desc: "Do a final check and share your masterpiece with the world.",
     },
   ];
-
+ 
   return (
     <div className="bg-gray-900 text-white min-h-screen font-sans overflow-hidden">
       {/* Header */}
@@ -146,7 +143,7 @@ const features = [
       </section>
 
       {/* How it Works Section */}
-      <section className="py-20 bg-gradient-to-b from-gray-900 to-gray-800 px-2">
+      <section className="py-10 bg-gradient-to-b from-gray-900 to-gray-800 px-2">
         <div className="container mx-auto px-4">
           <motion.h2
             className="text-4xl font-bold mb-12 text-center"
@@ -156,7 +153,7 @@ const features = [
           >
             Your Journey to Social Media Excellence
           </motion.h2>
-          <div className="flex flex-col items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2  place-items-center">
             {workflowSteps.map((step, index) => (
               <motion.div
                 key={index}
@@ -177,7 +174,7 @@ const features = [
           </div>
         </div>
       </section>
-
+      <FAQSection />
       {/* Footer */}
       <footer className="bg-gray-900 py-10">
         <div className="container mx-auto px-4 text-center">

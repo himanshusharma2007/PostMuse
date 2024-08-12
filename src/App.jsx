@@ -5,7 +5,7 @@ import SetParametersPage from "./pages/SetParameters";
 import GeneratedPost from "./pages/GeneratedPost";
 // import CreatePost from "./pages/CreatePost";
 import MyPosts from "./pages/MyPosts";
-// import About from "./pages/About";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
         <Route path="/create" element={<SetParametersPage />} />
         <Route path="/generated-post" element={<GeneratedPost />} />
          <Route path="/my-posts" element={<MyPosts />} />
-        {/* <Route path="/about" element={<About />} />  */}
+        <Route path="/about" element={<About />} /> 
       </Routes>
     </Router>
   );
