@@ -4,6 +4,7 @@ import { updatePost } from "./postService";
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
+//generatePrompt funtion
 export async function generatePrompt(parameters) {
   console.log("generate prompt called")
   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
