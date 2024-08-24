@@ -56,7 +56,7 @@ const ReviewPost = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Header />
-      <div className="container mx-auto px-4 pt-[12vh] pb-10">
+      <div className="container mx-auto px-4 pt-[14vh] pb-10">
         <motion.div
           className="text-center mb-8"
           initial={{ opacity: 0, y: -20 }}
