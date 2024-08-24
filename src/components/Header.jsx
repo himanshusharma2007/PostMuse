@@ -19,6 +19,7 @@ const Header = () => {
   const navItems = [
     { title: "Home", path: "/" },
     { title: "Create Post", path: "/create" },
+       { title: "AI Post Review", path: "/review-post" },
     { title: "My Posts", path: "/my-posts" },
     { title: "About us", path: "/about" },
   ];
