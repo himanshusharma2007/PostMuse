@@ -114,7 +114,7 @@ const MyPosts = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <Header />
-      <div className="container mx-auto px-4 pt-20 pb-12">
+      <div className="container mx-auto px-4 pt-[12vh] pb-12">
         <h1 className="text-4xl font-bold mb-8 text-center">My Posts</h1>
         {posts.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
