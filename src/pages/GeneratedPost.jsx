@@ -17,6 +17,7 @@ import {
   generatePrompt,
   generatePost,
   refinePost,
+  regeneratePost,
 } from "../Services/geminiService";
 import LoadingAnimation from "../components/LoadingAnimation";
 import Header from "../components/Header";
@@ -37,34 +38,60 @@ const GeneratedPost = () => {
   const navigate = useNavigate();
   const contentGeneratedRef = useRef(false);
 
-  // Inside the component:
-  const { post: incomingPost, isEditorMode: incomingEditorMode } =
-    location.state || {};
+  const {
+    originalPost,
+    review,
+    platforms,
+    targetAudience,
+    isRegenerating,
+    incomingEditorMode,
+  } = location.state || {};
+    console.log("orignalPost :>> ", originalPost);
   useEffect(() => {
-    if (incomingPost) {
-      console.log("object :>> ", incomingPost);
-      setGeneratedPost(incomingPost);
+    if (isRegenerating) {
+      handleRegeneration();
+    }
+  }, [isRegenerating]);
+  useEffect(() => {
+    if (originalPost) {
+      console.log("object :>> ", originalPost);
+      setGeneratedPost(originalPost);
       setIsEditorMode(incomingEditorMode);
     }
-  }, [incomingPost, incomingEditorMode]);
+  }, [originalPost]);
+
   useEffect(() => {
-      if (!incomingEditorMode && !incomingPost) {
-        console.log("check");
-        if (location.state?.postId && location.state?.post) {
-          setGeneratedPost(location.state.post);
-          setPostId(location.state.postId);
-        } else {
-          const storedPost = localStorage.getItem("generatedPost");
-          if (storedPost && storedPost.trim() !== "") {
-            setGeneratedPost(storedPost);
-          } else if (!contentGeneratedRef.current) {
-            contentGeneratedRef.current = true;
-            generateContent(false);
-          }
+    if (!originalPost) {
+      console.log("check");
+      if (location.state?.postId && location.state?.post) {
+        setGeneratedPost(location.state.post);
+        setPostId(location.state.postId);
+      } else {
+        const storedPost = localStorage.getItem("generatedPost");
+        if (storedPost && storedPost.trim() !== "") {
+          setGeneratedPost(storedPost);
+        } else if (!contentGeneratedRef.current) {
+          contentGeneratedRef.current = true;
+          generateContent(false);
         }
       }
+    }
   }, [location]);
-
+  const handleRegeneration = async () => {
+    setLoading(true);
+    setLoadingStage("Regenerating post...");
+    try {
+      console.log("Starting post regeneration...");
+      const regeneratedPost = await regeneratePost(originalPost, review);
+      console.log("Post regenerated successfully");
+      setGeneratedPost(regeneratedPost);
+    } catch (error) {
+      console.error("Error regenerating post:", error);
+      // Handle error (e.g., show error message to user)
+    } finally {
+      setLoading(false);
+    }
+  };
   const generateContent = async (regen) => {
     if (loading) return; // Prevent multiple simultaneous calls
 

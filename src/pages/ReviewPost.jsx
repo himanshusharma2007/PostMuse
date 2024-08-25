@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   FaPaperPlane,
@@ -16,9 +16,8 @@ import {
 } from "react-icons/ri";
 import Header from "../components/Header";
 import { generatePost } from "../Services/geminiService";
-import { regeneratePost } from "../Services/geminiService";
 import { useNavigate } from "react-router-dom";
-import { updatePost } from "../Services/postService";
+import { savePost, updatePost } from "../Services/postService";
 const ReviewPost = () => {
   const [post, setPost] = useState("");
   const [platforms, setPlatforms] = useState({
@@ -30,75 +29,105 @@ const ReviewPost = () => {
   const [targetAudience, setTargetAudience] = useState("");
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewResult, setReviewResult] = useState(null);
- const [scoreText, setScoreText] = useState(["",""]);
- const navigate = useNavigate();
+  const [scoreText, setScoreText] = useState(["", ""]);
+  const navigate = useNavigate();
+  const [postId, setPostId] = useState(null);
+  useEffect(() => {
+    // Run this code after `scoreText` changes
+    localStorage.setItem("reviewPostData", JSON.stringify({ scoreText }));
+  }, [scoreText]);
 
+  useEffect(() => {
+    const storedData = localStorage.getItem("reviewPostData");
+    if (storedData) {
+      const {
+        post,
+        platforms,
+        targetAudience,
+        reviewResult,
+        postId,
+        scoreText,
+      } = JSON.parse(storedData);
+      setPost(post);
+      setPlatforms(platforms);
+      setTargetAudience(targetAudience);
+      setReviewResult(reviewResult);
+      setPostId(postId);
+      setScoreText(scoreText || ["", ""]);
+    }
+    console.log("scoreText :>> ", scoreText);
+  }, []);
   const getScoreColor = (score) => {
     if (score >= 75) return "text-green-500";
     if (score >= 60) return "text-yellow-500";
     return "text-red-500";
   };
 
-const handleEditPost = () => {
-  navigate("/generated-post", {
-    state: {
-      post: post,
-      isEditorMode: true,
-    },
-  });
-};
-const handleSave = async () => {
-  try {
-    await updatePost(postId, post);
-    // Show a success message to the user
-    alert("Post saved successfully!");
-  } catch (error) {
-    console.error("Error saving post:", error);
-    // Show an error message to the user
-    alert("Failed to save the post. Please try again.");
-  }
-};
-const handleRegenerate = async () => {
-  try {
-    setIsReviewing(true);
-    const regeneratedPost = await regeneratePost(post, reviewResult);
+  const handleEditPost = () => {
     navigate("/generated-post", {
       state: {
-        post: regeneratedPost,
-        isEditorMode: false,
+        originalPost: post,
+        incomingEditorMode: true,
       },
     });
-  } catch (error) {
-    console.error("Error regenerating post:", error);
-    // Handle error (e.g., show error message to user)
-  } finally {
-    setIsReviewing(false);
-  }
-};
+  };
+  const handleSave = async () => {
+    try {
+      if (!postId) {
+        throw new Error("No postId available. Please review the post first.");
+      }
+      await updatePost(postId, post);
+      console.log("Post updated successfully");
+      alert("Post saved successfully!");
+    } catch (error) {
+      console.error("Error saving post:", error);
+      alert("Failed to save the post. Please try again.");
+    }
+  };
+  const handleRegenerate = () => {
+    navigate("/generated-post", {
+      state: {
+        originalPost: post,
+        review: reviewResult,
+        platforms,
+        targetAudience,
+        isRegenerating: true,
+      },
+    });
+  };
   const handleReview = async () => {
     setIsReviewing(true);
     try {
       const prompt = createReviewPrompt(post, platforms, targetAudience);
-      const response = await generatePost(prompt); // This would be your function to call Gemini API
-      console.log("response :>> ", response);
+      const response = await generatePost(prompt);
+      console.log("Review response received");
       const parsedResponse = parseGeminiResponse(response);
-          console.log("soretext :>> ", scoreText);
 
-      // Check if the parsed response is valid
-      if (
-        isNaN(parsedResponse.score) ||
-        parsedResponse.score < 0 ||
-        parsedResponse.score > 100
-      ) {
-        throw new Error("Invalid score received from AI");
-      }
+      // Save the post and review to Firestore
+      const savedPostId = await savePost(
+        post,
+        { platforms, targetAudience, scoreText },
+        parsedResponse
+      );
+      setPostId(savedPostId);
+      console.log("Post and review saved with ID:", savedPostId);
 
-      setReviewResult(parsedResponse);
+      // Store in localStorage for persistence after state is updated
+      localStorage.setItem(
+        "reviewPostData",
+        JSON.stringify({
+          post,
+          platforms,
+          targetAudience,
+          scoreText,
+          reviewResult: parsedResponse,
+          postId: savedPostId,
+        })
+      );
+      console.log("platforms in local storage:>> ", platforms);
+      console.log("scoreText in local storage:>> ", scoreText);
     } catch (error) {
       console.error("Error reviewing post:", error);
-      // Handle error (e.g., show error message to user)
-      setReviewResult(null);
-      // You might want to show an error message to the user here
     } finally {
       setIsReviewing(false);
     }
@@ -135,6 +164,8 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
       improvements: [],
     };
 
+    let tempScoreText = ["", ""];
+
     sections.forEach((section) => {
       const [title, ...content] = section.split(":");
       const trimmedContent = content.join(":").trim();
@@ -143,15 +174,16 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
         case "score":
           const scoreMatch = trimmedContent.match(/\d+/);
           parsedResponse.score = scoreMatch ? parseInt(scoreMatch[0]) : 0;
-       if (parsedResponse.score >= 75) {
-         setScoreText(["Good", "text-green-500"]);
-       } else if (parsedResponse.score > 60) {
-         setScoreText(["Alright", "text-yellow-500"]);
-       } else if (parsedResponse.score <= 60) {
-         setScoreText(["Bad", "text-red-500"]);
-       }
-          console.log("soretext :>> ", scoreText);
+
+          if (parsedResponse.score >= 75) {
+            tempScoreText = ["Good", "text-green-500"];
+          } else if (parsedResponse.score > 60) {
+            tempScoreText = ["Alright", "text-yellow-500"];
+          } else if (parsedResponse.score <= 60) {
+            tempScoreText = ["Bad", "text-red-500"];
+          }
           break;
+
         case "strengths":
           parsedResponse.strengths = trimmedContent
             .split("\n")
@@ -175,7 +207,9 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
           break;
       }
     });
-
+    console.log("tempScoreText :>> ", tempScoreText);
+    setScoreText(tempScoreText);
+    console.log("scoreText :>> ", scoreText);
     return parsedResponse;
   }
 

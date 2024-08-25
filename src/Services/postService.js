@@ -13,23 +13,26 @@ import {
 } from "firebase/firestore";
 import { getUserId } from "./userService";
 
-export const savePost = async (post, parameters) => {
+// In postService.js
+export const savePost = async (post, parameters, review = null) => {
   const userId = getUserId();
   try {
+    console.log("Saving post to Firestore...");
     const docRef = await addDoc(collection(db, "posts"), {
       userId,
       content: post,
       parameters,
+      review,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     });
+    console.log("Post saved successfully with ID:", docRef.id);
     return docRef.id;
   } catch (error) {
     console.error("Error saving post: ", error);
     throw error;
   }
 };
-
 export const updatePost = async (postId, newContent) => {
   try {
     const postRef = doc(db, "posts", postId);
