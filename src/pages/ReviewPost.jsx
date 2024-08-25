@@ -16,6 +16,9 @@ import {
 } from "react-icons/ri";
 import Header from "../components/Header";
 import { generatePost } from "../Services/geminiService";
+import { regeneratePost } from "../Services/geminiService";
+import { useNavigate } from "react-router-dom";
+import { updatePost } from "../Services/postService";
 const ReviewPost = () => {
   const [post, setPost] = useState("");
   const [platforms, setPlatforms] = useState({
@@ -28,6 +31,7 @@ const ReviewPost = () => {
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewResult, setReviewResult] = useState(null);
  const [scoreText, setScoreText] = useState(["",""]);
+ const navigate = useNavigate();
 
   const getScoreColor = (score) => {
     if (score >= 75) return "text-green-500";
@@ -35,6 +39,42 @@ const ReviewPost = () => {
     return "text-red-500";
   };
 
+const handleEditPost = () => {
+  navigate("/generated-post", {
+    state: {
+      post: post,
+      isEditorMode: true,
+    },
+  });
+};
+const handleSave = async () => {
+  try {
+    await updatePost(postId, post);
+    // Show a success message to the user
+    alert("Post saved successfully!");
+  } catch (error) {
+    console.error("Error saving post:", error);
+    // Show an error message to the user
+    alert("Failed to save the post. Please try again.");
+  }
+};
+const handleRegenerate = async () => {
+  try {
+    setIsReviewing(true);
+    const regeneratedPost = await regeneratePost(post, reviewResult);
+    navigate("/generated-post", {
+      state: {
+        post: regeneratedPost,
+        isEditorMode: false,
+      },
+    });
+  } catch (error) {
+    console.error("Error regenerating post:", error);
+    // Handle error (e.g., show error message to user)
+  } finally {
+    setIsReviewing(false);
+  }
+};
   const handleReview = async () => {
     setIsReviewing(true);
     try {
@@ -362,6 +402,7 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
 
                 <div className="flex space-x-4">
                   <motion.button
+                    onClick={handleEditPost}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -370,6 +411,7 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                     Edit Post
                   </motion.button>
                   <motion.button
+                    onClick={handleRegenerate}
                     className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -377,7 +419,9 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                     <FaRedoAlt className="mr-2" />
                     Regenerate
                   </motion.button>
+                  // Update the button onClick:
                   <motion.button
+                    onClick={handleSave}
                     className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}

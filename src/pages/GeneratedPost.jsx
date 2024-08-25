@@ -24,6 +24,8 @@ import { savePost, updatePost } from "../Services/postService";
 import { BiSave } from "react-icons/bi";
 
 const GeneratedPost = () => {
+  const location = useLocation();
+
   const [postId, setPostId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState("");
@@ -33,22 +35,34 @@ const GeneratedPost = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const postContainerRef = useRef(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const contentGeneratedRef = useRef(false);
 
+  // Inside the component:
+  const { post: incomingPost, isEditorMode: incomingEditorMode } =
+    location.state || {};
   useEffect(() => {
-    if (location.state?.postId && location.state?.post) {
-      setPostId(location.state.postId);
-      setGeneratedPost(location.state.post);
-    } else {
-      const storedPost = localStorage.getItem("generatedPost");
-      if (storedPost && storedPost.trim() !== "") {
-        setGeneratedPost(storedPost);
-      } else if (!contentGeneratedRef.current) {
-        contentGeneratedRef.current = true;
-        generateContent(false);
-      }
+    if (incomingPost) {
+      console.log("object :>> ", incomingPost);
+      setGeneratedPost(incomingPost);
+      setIsEditorMode(incomingEditorMode);
     }
+  }, [incomingPost, incomingEditorMode]);
+  useEffect(() => {
+      if (!incomingEditorMode && !incomingPost) {
+        console.log("check");
+        if (location.state?.postId && location.state?.post) {
+          setGeneratedPost(location.state.post);
+          setPostId(location.state.postId);
+        } else {
+          const storedPost = localStorage.getItem("generatedPost");
+          if (storedPost && storedPost.trim() !== "") {
+            setGeneratedPost(storedPost);
+          } else if (!contentGeneratedRef.current) {
+            contentGeneratedRef.current = true;
+            generateContent(false);
+          }
+        }
+      }
   }, [location]);
 
   const generateContent = async (regen) => {
@@ -102,7 +116,6 @@ const GeneratedPost = () => {
     }
   };
 
-
   const handleCopy = () => {
     navigator.clipboard.writeText(generatedPost).then(() => {
       // You can add a toast notification here to inform the user that the text has been copied
@@ -126,12 +139,12 @@ const GeneratedPost = () => {
       );
     });
   };
- const toggleEditorMode = () => {
-   setIsEditorMode(!isEditorMode);
-   if (!isEditorMode) {
-     setShowEmojiPicker(false);
-   }
- };
+  const toggleEditorMode = () => {
+    setIsEditorMode(!isEditorMode);
+    if (!isEditorMode) {
+      setShowEmojiPicker(false);
+    }
+  };
   const handleEmojiClick = (emojiObject) => {
     const emoji = emojiObject.emoji;
     const selection = window.getSelection();
@@ -146,7 +159,6 @@ const GeneratedPost = () => {
   const saveEditedContent = () => {
     const editedContent = postContainerRef.current.innerText;
     if (postId) {
-      
       setGeneratedPost(editedContent);
       updatePost(postId, editedContent);
     }

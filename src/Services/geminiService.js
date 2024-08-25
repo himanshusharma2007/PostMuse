@@ -75,6 +75,30 @@ export async function saveEditedPost(postId, editedContent) {
     throw error;
   }
 }
+
+export async function regeneratePost(originalPost, review) {
+  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+  const prompt = `
+    Original post: "${originalPost}"
+    
+    Review:
+    Strengths: ${review.strengths.join(", ")}
+    Vulnerabilities: ${review.vulnerabilities.join(", ")}
+    Improvements: ${review.improvements.join(", ")}
+    
+    Please regenerate the post, addressing the vulnerabilities and incorporating the suggested improvements. Maintain the original tone and intent of the post while enhancing its effectiveness.
+  `;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Error regenerating post:", error);
+    throw error;
+  }
+}
 function createPromptForGemini(parameters) {
   const {
     tone,
