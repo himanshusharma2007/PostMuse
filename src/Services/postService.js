@@ -8,7 +8,7 @@ import {
   getDocs,
   query,
   where,
-  Timestamp ,
+  Timestamp,
   orderBy,
 } from "firebase/firestore";
 import { getUserId } from "./userService";

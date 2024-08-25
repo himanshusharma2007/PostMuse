@@ -15,7 +15,7 @@ import {
   RiLinkedinBoxLine,
 } from "react-icons/ri";
 import Header from "../components/Header";
-
+import { generatePost } from "../Services/geminiService";
 const ReviewPost = () => {
   const [post, setPost] = useState("");
   const [platforms, setPlatforms] = useState({
@@ -27,24 +27,117 @@ const ReviewPost = () => {
   const [targetAudience, setTargetAudience] = useState("");
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewResult, setReviewResult] = useState(null);
+ const [scoreText, setScoreText] = useState(["",""]);
 
-  const handleReview = () => {
-    setIsReviewing(true);
-    // Simulate API call
-    setTimeout(() => {
-      setReviewResult({
-        score: 50,
-        strengths: [
-          "Engaging opening",
-          "Good use of hashtags",
-          "Clear call-to-action",
-        ],
-        improvements: ["Could be more concise", "Add more emotional appeal"],
-        suggestions: "Consider adding a question to encourage engagement.",
-      });
-      setIsReviewing(false);
-    }, 2000);
+  const getScoreColor = (score) => {
+    if (score >= 75) return "text-green-500";
+    if (score >= 60) return "text-yellow-500";
+    return "text-red-500";
   };
+
+  const handleReview = async () => {
+    setIsReviewing(true);
+    try {
+      const prompt = createReviewPrompt(post, platforms, targetAudience);
+      const response = await generatePost(prompt); // This would be your function to call Gemini API
+      console.log("response :>> ", response);
+      const parsedResponse = parseGeminiResponse(response);
+          console.log("soretext :>> ", scoreText);
+
+      // Check if the parsed response is valid
+      if (
+        isNaN(parsedResponse.score) ||
+        parsedResponse.score < 0 ||
+        parsedResponse.score > 100
+      ) {
+        throw new Error("Invalid score received from AI");
+      }
+
+      setReviewResult(parsedResponse);
+    } catch (error) {
+      console.error("Error reviewing post:", error);
+      // Handle error (e.g., show error message to user)
+      setReviewResult(null);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsReviewing(false);
+    }
+  };
+  function createReviewPrompt(post, platforms, targetAudience) {
+    return `
+Please provide a comprehensive and critical review of the following social media post. Be thorough and point out both strengths and areas for improvement. The review should be harsh but constructive, aiming to help the user create the most effective post possible.
+
+Post:
+"${post}"
+
+Target Platforms: ${Object.keys(platforms)
+      .filter((p) => platforms[p])
+      .join(", ")}
+Target Audience: ${targetAudience}
+
+Please structure your response as follows, without using any text formatting (no bold, italic, or other markup):
+
+1. Score: [Provide a score out of 100 as a single number]
+2. Strengths: [List up to 4 current strengths of the post]
+3. Vulnerabilities: [List up to 3 weaknesses or potential issues with the post]
+4. Improvements: [Provide 3 to 6 specific suggestions for improving the post]
+
+Ensure that each section is clearly labeled and separated for easy parsing. Do not include any additional headers or formatting.
+`;
+  }
+
+  function parseGeminiResponse(response) {
+    const sections = response.split(/\d+\.\s+/).filter(Boolean);
+    const parsedResponse = {
+      score: 0,
+      strengths: [],
+      vulnerabilities: [],
+      improvements: [],
+    };
+
+    sections.forEach((section) => {
+      const [title, ...content] = section.split(":");
+      const trimmedContent = content.join(":").trim();
+
+      switch (title.trim().toLowerCase()) {
+        case "score":
+          const scoreMatch = trimmedContent.match(/\d+/);
+          parsedResponse.score = scoreMatch ? parseInt(scoreMatch[0]) : 0;
+       if (parsedResponse.score >= 75) {
+         setScoreText(["Good", "text-green-500"]);
+       } else if (parsedResponse.score > 60) {
+         setScoreText(["Alright", "text-yellow-500"]);
+       } else if (parsedResponse.score <= 60) {
+         setScoreText(["Bad", "text-red-500"]);
+       }
+          console.log("soretext :>> ", scoreText);
+          break;
+        case "strengths":
+          parsedResponse.strengths = trimmedContent
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 4);
+          break;
+        case "vulnerabilities":
+          parsedResponse.vulnerabilities = trimmedContent
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 3);
+          break;
+        case "improvements":
+          parsedResponse.improvements = trimmedContent
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .slice(0, 6);
+          break;
+      }
+    });
+
+    return parsedResponse;
+  }
 
   const platformIcons = {
     Instagram: RiInstagramLine,
@@ -178,11 +271,11 @@ const ReviewPost = () => {
                 <h2 className="text-2xl font-bold mb-4">Review Results</h2>
 
                 <div className="flex items-center justify-between mb-6">
-                  <div className="text-4xl font-bold">
-                    {reviewResult.score}/100
+                  <div className={`text-4xl ${scoreText[1]} font-bold`}>
+                    {scoreText[0]}
                   </div>
-                  <div className="relative w-32 h-32 ">
-                    <svg className="w-full h-full rotate-[90deg]" viewBox="0 0 100 100">
+                  <div className="relative w-32 h-32">
+                    <svg className="w-full h-full" viewBox="0 0 100 100">
                       <circle
                         className="text-gray-700 stroke-current"
                         strokeWidth="10"
@@ -192,7 +285,9 @@ const ReviewPost = () => {
                         fill="transparent"
                       ></circle>
                       <circle
-                        className="text-purple-600  progress-ring__circle stroke-current"
+                        className={`${getScoreColor(
+                          reviewResult.score
+                        )} progress-ring__circle stroke-current`}
                         strokeWidth="10"
                         strokeLinecap="round"
                         cx="50"
@@ -206,7 +301,9 @@ const ReviewPost = () => {
                       ></circle>
                     </svg>
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl font-bold">
-                      {reviewResult.score}%
+                      {reviewResult.score != null
+                        ? `${reviewResult.score}/100`
+                        : "N/A"}
                     </div>
                   </div>
                 </div>
@@ -229,8 +326,26 @@ const ReviewPost = () => {
 
                 <div className="mb-4">
                   <h3 className="text-xl font-semibold mb-2">
-                    Areas for Improvement:
+                    Vulnerabilities:
                   </h3>
+                  <ul className="list-disc list-inside">
+                    {reviewResult.vulnerabilities.map(
+                      (vulnerability, index) => (
+                        <motion.li
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.5, delay: index * 0.1 }}
+                        >
+                          {vulnerability}
+                        </motion.li>
+                      )
+                    )}
+                  </ul>
+                </div>
+
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold mb-2">Improvements:</h3>
                   <ul className="list-disc list-inside">
                     {reviewResult.improvements.map((improvement, index) => (
                       <motion.li
@@ -243,11 +358,6 @@ const ReviewPost = () => {
                       </motion.li>
                     ))}
                   </ul>
-                </div>
-
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold mb-2">Suggestions:</h3>
-                  <p>{reviewResult.suggestions}</p>
                 </div>
 
                 <div className="flex space-x-4">
