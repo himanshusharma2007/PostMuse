@@ -18,6 +18,8 @@ import Header from "../components/Header";
 import { generatePost } from "../Services/geminiService";
 import { useNavigate } from "react-router-dom";
 import { savePost, updatePost } from "../Services/postService";
+import { BiReset } from "react-icons/bi";
+import { TfiReload } from "react-icons/tfi";
 const ReviewPost = () => {
   const [post, setPost] = useState("");
   const [platforms, setPlatforms] = useState({
@@ -32,31 +34,57 @@ const ReviewPost = () => {
   const [scoreText, setScoreText] = useState(["", ""]);
   const navigate = useNavigate();
   const [postId, setPostId] = useState(null);
+  const [updatedcheck, setUpdatedCheck] = useState(false);
+  // const [apiResponse,setApiResponse]=useState({})
   useEffect(() => {
     // Run this code after `scoreText` changes
-    localStorage.setItem("reviewPostData", JSON.stringify({ scoreText }));
-  }, [scoreText]);
+    console.log("check1");
+    if (updatedcheck) {
+      console.log("check2");
 
-  useEffect(() => {
-    const storedData = localStorage.getItem("reviewPostData");
-    if (storedData) {
-      const {
+      setData();
+    }
+  }, [updatedcheck]);
+  const setData = () => {
+    console.log("reviewResult in setData :>> ", reviewResult);
+    localStorage.setItem(
+      "reviewPostData",
+      JSON.stringify({
         post,
         platforms,
         targetAudience,
+        scoreText,
         reviewResult,
         postId,
-        scoreText,
+      })
+    );
+  };
+  useEffect(() => {
+    const storedData = localStorage.getItem("reviewPostData");
+    // console.log("storedData in useeffect>> ", storedData);
+    if (storedData) {
+      const {
+        post = "",
+        platforms = {
+          Instagram: false,
+          Facebook: false,
+          Twitter: false,
+          LinkedIn: false,
+        },
+        targetAudience = "",
+        reviewResult = null,
+        postId = null,
+        scoreText = ["", ""],
       } = JSON.parse(storedData);
       setPost(post);
       setPlatforms(platforms);
       setTargetAudience(targetAudience);
       setReviewResult(reviewResult);
       setPostId(postId);
-      setScoreText(scoreText || ["", ""]);
+      setScoreText(scoreText);
     }
-    console.log("scoreText :>> ", scoreText);
   }, []);
+
   const getScoreColor = (score) => {
     if (score >= 75) return "text-green-500";
     if (score >= 60) return "text-yellow-500";
@@ -71,19 +99,7 @@ const ReviewPost = () => {
       },
     });
   };
-  const handleSave = async () => {
-    try {
-      if (!postId) {
-        throw new Error("No postId available. Please review the post first.");
-      }
-      await updatePost(postId, post);
-      console.log("Post updated successfully");
-      alert("Post saved successfully!");
-    } catch (error) {
-      console.error("Error saving post:", error);
-      alert("Failed to save the post. Please try again.");
-    }
-  };
+
   const handleRegenerate = () => {
     navigate("/generated-post", {
       state: {
@@ -98,10 +114,13 @@ const ReviewPost = () => {
   const handleReview = async () => {
     setIsReviewing(true);
     try {
+      console.log("scoreText before local storage:>> ", scoreText);
+
       const prompt = createReviewPrompt(post, platforms, targetAudience);
       const response = await generatePost(prompt);
-      console.log("Review response received");
       const parsedResponse = parseGeminiResponse(response);
+
+      // console.log("Review response received", parsedResponse);
 
       // Save the post and review to Firestore
       const savedPostId = await savePost(
@@ -109,29 +128,41 @@ const ReviewPost = () => {
         { platforms, targetAudience, scoreText },
         parsedResponse
       );
-      setPostId(savedPostId);
-      console.log("Post and review saved with ID:", savedPostId);
 
-      // Store in localStorage for persistence after state is updated
-      localStorage.setItem(
-        "reviewPostData",
-        JSON.stringify({
-          post,
-          platforms,
-          targetAudience,
-          scoreText,
-          reviewResult: parsedResponse,
-          postId: savedPostId,
-        })
-      );
-      console.log("platforms in local storage:>> ", platforms);
-      console.log("scoreText in local storage:>> ", scoreText);
+      setPostId(savedPostId);
+      setReviewResult(parsedResponse);
+      setUpdatedCheck(true);
+      // Calling setData after state updates
+      // setPostId(savedPostId);
+      // setReviewResult(parsedResponse);
+
+      // setTimeout(() => {
+      //   setData();
+      // }, 2000); // Timeout ensures setData runs after the state update
     } catch (error) {
       console.error("Error reviewing post:", error);
     } finally {
       setIsReviewing(false);
     }
+    console.log("handle review ends");
   };
+const handleReset=()=>{
+ localStorage.setItem(
+   "reviewPostData",
+   JSON.stringify({})
+ );
+  setPost("");
+  setPlatforms({
+    Instagram: false,
+    Facebook: false,
+    Twitter: false,
+    LinkedIn: false,
+  });
+  setTargetAudience("");
+  setReviewResult(null);
+  setPostId("");
+  setScoreText(["",""]);
+}
   function createReviewPrompt(post, platforms, targetAudience) {
     return `
 Please provide a comprehensive and critical review of the following social media post. Be thorough and point out both strengths and areas for improvement. The review should be harsh but constructive, aiming to help the user create the most effective post possible.
@@ -236,13 +267,22 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
           </p>
         </motion.div>
 
-        <div className="flex flex-col lg:flex-row gap-8 md:h-[88vh]">
+        <div className=" flex flex-col lg:flex-row gap-8 md:h-[88vh]">
           <motion.div
-            className="bg-gray-800 rounded-lg p-6 shadow-lg flex flex-col space-y-4 md:w-[55%]"
+            className="relative bg-gray-800 rounded-lg p-6 shadow-lg flex flex-col space-y-4 md:w-[55%]"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
+            <div className="absolute top-2 right-2 ">
+              <button
+                onClick={handleReset}
+                className="flex space-x-1 justify-center items-center px-2 py-1 hover:bg-zinc-400 rounded-md"
+              >
+                <TfiReload />
+                <span>reset</span>
+              </button>
+            </div>
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">
                 Your Post
@@ -260,33 +300,34 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                 Target Platforms
               </label>
               <div className="flex flex-wrap gap-4">
-                {Object.entries(platforms).map(([name, isChecked]) => {
-                  const Icon = platformIcons[name];
-                  return (
-                    <motion.label
-                      key={name}
-                      className={`flex items-center px-4 py-2 rounded-full cursor-pointer ${
-                        isChecked ? "bg-purple-600" : "bg-gray-700"
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <input
-                        type="checkbox"
-                        className="sr-only"
-                        checked={isChecked}
-                        onChange={() =>
-                          setPlatforms((prev) => ({
-                            ...prev,
-                            [name]: !prev[name],
-                          }))
-                        }
-                      />
-                      <Icon className="mr-2" />
-                      {name}
-                    </motion.label>
-                  );
-                })}
+                {platforms &&
+                  Object.entries(platforms).map(([name, isChecked]) => {
+                    const Icon = platformIcons[name];
+                    return (
+                      <motion.label
+                        key={name}
+                        className={`flex items-center px-4 py-2 rounded-full cursor-pointer ${
+                          isChecked ? "bg-purple-600" : "bg-gray-700"
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={isChecked}
+                          onChange={() =>
+                            setPlatforms((prev) => ({
+                              ...prev,
+                              [name]: !prev[name],
+                            }))
+                          }
+                        />
+                        <Icon className="mr-2" />
+                        {name}
+                      </motion.label>
+                    );
+                  })}
               </div>
             </div>
 
@@ -309,7 +350,10 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
             <div className="flex flex-grow justify-center items-end mt-">
               <motion.button
                 className="  bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6  max-h-12 rounded-lg flex items-center justify-center"
-                onClick={handleReview}
+                onClick={() => {
+                  handleReview();
+                  // setData();
+                }}
                 disabled={
                   !post ||
                   Object.values(platforms).every((v) => !v) ||
@@ -452,16 +496,6 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                   >
                     <FaRedoAlt className="mr-2" />
                     Regenerate
-                  </motion.button>
-                  // Update the button onClick:
-                  <motion.button
-                    onClick={handleSave}
-                    className="flex-1 bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaSave className="mr-2" />
-                    Save
                   </motion.button>
                 </div>
               </>

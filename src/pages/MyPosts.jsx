@@ -8,6 +8,7 @@ import Header from "../components/Header";
 import { BiCross, BiEdit } from "react-icons/bi";
 import { RiCloseLargeFill } from "react-icons/ri";
 import { BsEye } from "react-icons/bs";
+import { Delete } from "@mui/icons-material";
 
 Modal.setAppElement("#root");
 
@@ -78,24 +79,18 @@ const MyPosts = () => {
         transition={{ duration: 0.3 }}
         className="bg-gray-800 rounded-lg shadow-lg p-6 mb-6"
       >
-        <h3 className="text-xl font-bold mb-2 text-purple-400">
-          {truncateText(post.parameters.message, 10)}
-        </h3>
+        <button
+          onClick={() => handleViewPost(post)}
+          className="text-xl font-bold mb-2 text-purple-400 outline-none text-start"
+        >
+          {truncateText(post.parameters.message || post.content, 10)}
+        </button>
         <p className="text-gray-300 mb-4">{truncateText(post.content, 30)}</p>
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-400">
             {formatDate(post.createdAt)}
           </span>
           <div className="flex space-x-1 items-center">
-            <button
-              onClick={() => handleViewPost(post)}
-              className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white  py-2 px-4 rounded mr-2"
-            >
-              <span>
-                <BsEye />
-              </span>
-              <span className="hidden md:block"> View</span>
-            </button>
             <button
               onClick={() => handleEditPost(post)}
               className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 text-white  py-2 px-4 rounded"
@@ -104,6 +99,12 @@ const MyPosts = () => {
                 <BiEdit />
               </span>
               <span className="hidden md:block"> Edit</span>
+            </button>
+            <button className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white  py-2 px-4 rounded mr-2">
+              <span>
+                <Delete />
+              </span>
+              <span className="hidden md:block"> View</span>
             </button>
           </div>
         </div>
