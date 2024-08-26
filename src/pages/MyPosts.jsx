@@ -9,6 +9,9 @@ import { BiCross, BiEdit } from "react-icons/bi";
 import { RiCloseLargeFill } from "react-icons/ri";
 import { BsEye } from "react-icons/bs";
 import { Delete } from "@mui/icons-material";
+import { deleteDoc, doc } from "firebase/firestore";
+import { db } from "../config/firebase/firebase";
+import { FiTrash2 } from "react-icons/fi";
 
 Modal.setAppElement("#root");
 
@@ -48,7 +51,13 @@ const MyPosts = () => {
       state: { postId: post.id, post: post.content },
     });
   };
+  const handleDelete = async (post) => {
+    const postRef = doc(db, "posts", post.id); // Adjust path based on your Firestore structure
+    await deleteDoc(postRef);
 
+    // Remove the post from the local state
+    setPosts((prevPosts) => prevPosts.filter((p) => p.id !== post.id));
+  };
   const truncateText = (text, maxWords) => {
     const words = text.split(" ");
     if (words.length > maxWords) {
@@ -96,15 +105,18 @@ const MyPosts = () => {
               className="flex items-center space-x-1 bg-green-600 hover:bg-green-700 text-white  py-2 px-4 rounded"
             >
               <span className="">
-                <BiEdit />
+                <BiEdit fontSize={25} />
               </span>
               <span className="hidden md:block"> Edit</span>
             </button>
-            <button className="flex items-center space-x-1 bg-blue-600 hover:bg-blue-700 text-white  py-2 px-4 rounded mr-2">
+            <button
+              onClick={() => handleDelete(post)}
+              className="flex items-center space-x-1 bg-red-600 hover:bg-red-700 text-white  py-2 px-4 rounded mr-2"
+            >
               <span>
-                <Delete />
+                <FiTrash2 fontSize={25} />
               </span>
-              <span className="hidden md:block"> View</span>
+              <span className="hidden md:block"> Delete</span>
             </button>
           </div>
         </div>
@@ -142,19 +154,18 @@ const MyPosts = () => {
         {selectedPost && (
           <>
             {" "}
-            <div className="bg-gray-800 rounded-lg p-6 max-w-2xl mx-auto">
-              <div className="wraper w-full  flex justify-end items-center">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="  hover:text-white text-gray-300 font-bold py-2 px-4 rounded"
-                >
-                  <RiCloseLargeFill fontSize={25} />
-                </button>
-              </div>
+            <div className="relative bg-gray-800 rounded-lg p-6 max-w-2xl mx-auto">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className=" absolute top-1 right-1 hover:text-white text-gray-300 font-bold py-2 px-4 rounded"
+              >
+                <RiCloseLargeFill fontSize={25} />
+              </button>
+
               <h2 className="text-xl md:text-2xl font-bold mb-4 text-purple-400">
                 {selectedPost.parameters.message}
               </h2>
-              <p className="text-gray-300 mb-4 whitespace-pre-wrap max-h-[50vh] overflow-auto">
+              <p className="text-gray-300 mb-4 whitespace-pre-wrap max-h-[50vh] overflow-auto  custom-scrollbar">
                 {selectedPost.content}
               </p>
             </div>

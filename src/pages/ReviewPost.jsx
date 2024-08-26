@@ -288,7 +288,7 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                 Your Post
               </label>
               <textarea
-                className="w-full h-52 p-4 bg-gray-700 text-white rounded-lg resize-none"
+                className="w-full h-52 custom-scrollbar p-4 bg-gray-700 text-white rounded-lg resize-none"
                 placeholder="Paste your post here..."
                 value={post}
                 onChange={(e) => setPost(e.target.value)}
@@ -352,7 +352,6 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                 className="  bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6  max-h-12 rounded-lg flex items-center justify-center"
                 onClick={() => {
                   handleReview();
-                  // setData();
                 }}
                 disabled={
                   !post ||
@@ -374,7 +373,7 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
           </motion.div>
 
           <motion.div
-            className="bg-gray-800 rounded-lg p-6 h-auto overflow-auto shadow-lg flex-1 md:w-[45%]"
+            className="bg-gray-800 custom-scrollbar rounded-lg p-6 h-auto overflow-auto shadow-lg flex-1 md:w-[45%]"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -478,7 +477,7 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                   </ul>
                 </div>
 
-                <div className="flex space-x-4">
+                <div className="flex flex-col md:flex-row space-x-4">
                   <motion.button
                     onClick={handleEditPost}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"
@@ -495,7 +494,7 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                     whileTap={{ scale: 0.95 }}
                   >
                     <FaRedoAlt className="mr-2" />
-                    Regenerate
+                    Regenerate Post
                   </motion.button>
                 </div>
               </>

@@ -85,7 +85,7 @@ const LandingPage = () => {
         >
           <div className="absolute bottom-20 wraper flex flex-col justify-center items-center ">
             <motion.h2
-              className="text-3xl md:text-5xl font-bold mb-4 max-w-3xl leading-tight"
+              className="text-4xl md:text-5xl font-bold mb-4 max-w-3xl leading-tight"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3 }}

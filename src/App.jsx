@@ -7,7 +7,7 @@ import GeneratedPost from "./pages/GeneratedPost";
 import MyPosts from "./pages/MyPosts";
 import About from "./pages/About";
 import ReviewPost from "./pages/ReviewPost";
-
+import './App.css'
 function App() {
   return (
     <Router>
