@@ -154,7 +154,7 @@ const SetParametersPage = () => {
         className="max-w-3xl mx-auto pt-[12vh]  px-4 sm:px-6 lg:px-8"
       >
         <h2 className="text-3xl font-extrabold text-center mb-8">
-          <MdTune className="inline-block mr-2 mb-1" />
+          <MdTune className="inline-block mr-2 mb-1 " />
           Set Your Post Parameters
         </h2>
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -8,13 +8,13 @@ import {
   FaEdit,
   FaChartLine,
   FaHistory,
-  FaSyncAlt,
+
 } from "react-icons/fa";
-import { BiRightArrow } from "react-icons/bi";
-import { BsArrowRight } from "react-icons/bs";
+
 import { CgArrowRight } from "react-icons/cg";
 import Header from "../components/Header";
 import FAQSection from "../components/FAQSection";
+import { MdLibraryBooks } from "react-icons/md";
 // import Meteors from "@/components/magicui/meteors";
 const LandingPage = () => {
   const features = [
@@ -30,8 +30,8 @@ const LandingPage = () => {
     },
     {
       icon: FaEdit,
-      title: "Interactive Post Editing",
-      desc: "Edit and refine AI-generated content using AI or with an in-built text editor, complete with formatting tools.",
+      title: "Interactive Post Editing & Regeneration",
+      desc: "Edit and refine AI-generated content using AI or with an in-built text editor, complete with formatting tools.Not satisfied? Quickly regenerate your post with the click.",
     },
     {
       icon: FaChartLine,
@@ -44,9 +44,9 @@ const LandingPage = () => {
       desc: "Access and manage your previously generated posts for easy reference and reuse.",
     },
     {
-      icon: FaSyncAlt,
-      title: "Post Regeneration",
-      desc: "Not satisfied? Quickly regenerate your post with the click of a button for new ideas and variations.",
+      icon: MdLibraryBooks,
+      title: "AI Post Review",
+      desc: "Get AI-powered insights to optimize your social media posts. Enhance engagement and performance with smart recommendations.",
     },
   ];
 
@@ -168,7 +168,7 @@ const LandingPage = () => {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <div className="bg-purple-600 rounded-full w-12 h-12 flex items-center justify-center font-bold text-2xl mr-6">
+                <div className="bg-purple-600 rounded-full w-10 h-8 md:w-12 md:h-12 flex items-center justify-center font-bold text-xl md:text-2xl mr-6">
                   {index + 1}
                 </div>
                 <div>

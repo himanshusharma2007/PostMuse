@@ -205,7 +205,7 @@ const GeneratedPost = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl md:text-3xl font-bold">Generated Post</h2>
+              <h2 className="text-2xl md:text-3xl font-bold">Generated Post</h2>
               <button
                 onClick={toggleEditorMode}
                 className="bg-purple-600 hover:bg-purple-700 text-white text-sm md:text-base md:font-bold py-2 px-2 md:px-4 rounded"

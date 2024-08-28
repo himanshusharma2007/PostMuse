@@ -261,15 +261,15 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="text-4xl font-bold mb-2">Review Your Post</h1>
-          <p className="text-xl text-gray-300">
+          <h1 className="text-xl md:text-4xl font-bold mb-2">Review Your Post</h1>
+          <p className="text-md md:text-xl text-gray-300">
             Get AI-powered insights to enhance your social media content
           </p>
         </motion.div>
 
         <div className=" flex flex-col lg:flex-row gap-8 md:h-[88vh]">
           <motion.div
-            className="relative bg-gray-800 rounded-lg p-6 shadow-lg flex flex-col space-y-4 md:w-[55%]"
+            className="relative bg-gray-800 rounded-lg p-4 md:p-6 shadow-lg flex flex-col space-y-4 md:w-[55%]"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -299,14 +299,14 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
               <label className="block text-sm font-medium mb-2">
                 Target Platforms
               </label>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-2 md:gap-4">
                 {platforms &&
                   Object.entries(platforms).map(([name, isChecked]) => {
                     const Icon = platformIcons[name];
                     return (
                       <motion.label
                         key={name}
-                        className={`flex items-center px-4 py-2 rounded-full cursor-pointer ${
+                        className={`flex items-center  px-3 py-1 md:px-4 md:py-2 rounded-full cursor-pointer ${
                           isChecked ? "bg-purple-600" : "bg-gray-700"
                         }`}
                         whileHover={{ scale: 1.05 }}
@@ -477,7 +477,7 @@ Ensure that each section is clearly labeled and separated for easy parsing. Do n
                   </ul>
                 </div>
 
-                <div className="flex flex-col md:flex-row space-x-4">
+                <div className="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
                   <motion.button
                     onClick={handleEditPost}
                     className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center"

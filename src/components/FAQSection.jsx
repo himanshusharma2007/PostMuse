@@ -16,7 +16,7 @@ const FAQItem = ({ question, answer, isOpen, toggleOpen }) => {
       >
         <div className="flex items-center">
           <FaQuestion className="text-purple-400 mr-3" />
-          <span className="text-xl font-semibold text-white">{question}</span>
+          <span className="text-md md:text-xl font-semibold text-white">{question}</span>
         </div>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
